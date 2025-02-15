@@ -1,0 +1,21 @@
+{
+    "manifest_version": 3,
+    "name": "Tab Capture to Vespa",
+    "version": "1.0",
+    "permissions": [
+      "activeTab",
+      "tabCapture",
+      "<all_urls>",
+      "sidePanel"
+    ],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "action": {
+      "default_title": "Open Side Panel"
+    },
+    "side_panel": {
+      "default_path": "sidepanel.html"
+    }
+  }
+  
