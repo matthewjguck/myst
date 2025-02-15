@@ -1,19 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "Auto Screen Capture",
+  "name": "Tab Screenshot Capture",
   "version": "1.0",
-  "description": "Takes screen captures every few seconds.",
-  "permissions": ["activeTab", "scripting", "storage", "downloads"],
-  "background": {
-    "service_worker": "background.js"
-  },
-  "host_permissions": ["<all_urls>"],
+  "description": "Captures a screenshot of the current tab and stores it for later analysis.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage"
+  ],
   "action": {
     "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
-    }
+    "default_title": "Screenshot Extension"
   }
 }
