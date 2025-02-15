@@ -1,9 +1,10 @@
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request) => {
   if (request.action === 'captureTab') {
     chrome.tabs.captureTab(null, {format: 'png'}, (dataUrl) => {
       sendToVespa(dataUrl);
+      chrome.runtime.sendMessage({action: 'displayScreenshot', dataUrl: dataUrl});
     });
   }
 });

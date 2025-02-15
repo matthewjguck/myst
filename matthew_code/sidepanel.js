@@ -7,5 +7,10 @@ document.getElementById('captureButton').addEventListener('click', () => {
     if (request.action === 'captureComplete') {
       document.getElementById('status').textContent = request.success ? 
         'Capture successful!' : 'Capture failed. Please try again.';
+    } else if (request.action === 'displayScreenshot') {
+      const screenshotImg = document.getElementById('screenshot');
+      screenshotImg.src = request.dataUrl;
+      screenshotImg.style.display = 'block';
     }
   });
+  
