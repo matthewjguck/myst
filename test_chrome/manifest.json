@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "In-Browser Screenshot & Sentiment Analysis",
+  "version": "1.0",
+  "description": "Captures screenshots, extracts text via OCR, and runs sentiment analysis—all in Chrome.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Screenshot & Sentiment"
+  }
+}
