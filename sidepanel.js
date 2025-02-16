@@ -88,3 +88,38 @@ document.addEventListener("DOMContentLoaded", () => {
     updateInsightsDisplay();
   });
   
+  document.addEventListener("DOMContentLoaded", () => {
+    // Array of blob image URLs. You might generate this list on the server
+    // or hardcode it if it's fixed.
+    const blobImages = [
+      "blobs/dalle1.png",
+      "blobs/dalle2.png",
+      "blobs/dalle3.png",
+      "blobs/dalle4.png",
+      "blobs/dalle5.png",
+      "blobs/dalle6.png",
+      "blobs/dalle7.png",
+      // add more blob paths as needed
+    ];
+  
+    let currentImageIndex = 0;
+  
+    function updateBlobImage() {
+      // Get the image element where you want to display the blob
+      const imageElement = document.getElementById("blobImage");
+      if (!imageElement) return;
+  
+      // Set the src attribute to the current blob image
+      imageElement.src = blobImages[currentImageIndex];
+  
+      // Move to the next image (loop back to start if needed)
+      currentImageIndex = (currentImageIndex + 1) % blobImages.length;
+    }
+  
+    // Update the blob image every 30 seconds (30,000 ms)
+    setInterval(updateBlobImage, 10000);
+  
+    // Immediately update the image on page load
+    updateBlobImage();
+  });
+  
