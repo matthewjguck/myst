@@ -34,7 +34,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
-  if (message.action === "extractText") {
+
+  if (message.action === "analyzeScreenshot") {
     chrome.storage.local.get("screenshots", (result) => {
       if (!result.screenshots || result.screenshots.length === 0) {
         sendResponse({ error: "No screenshots found." });
@@ -43,7 +44,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       const latestScreenshot = result.screenshots[result.screenshots.length - 1].dataUrl;
 
-      fetch("http://127.0.0.1:5001/extract_text", {
+      fetch("http://127.0.0.1:5002/analyze_screenshot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: latestScreenshot }),
@@ -53,15 +54,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           if (data.error) {
             sendResponse({ error: data.error });
           } else {
-            sendResponse({ text: data.text });
+            sendResponse({ insights: data.insights });
           }
         })
         .catch(error => {
-          console.error("Error fetching OCR data:", error);
-          sendResponse({ error: "Failed to extract text." });
+          console.error("Error fetching analysis data:", error);
+          sendResponse({ error: "Failed to analyze screenshot." });
         });
 
-      return true; // Keep sendResponse valid for async fetch
+      return true;
     });
 
     return true;

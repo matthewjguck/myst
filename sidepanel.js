@@ -49,19 +49,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  document.getElementById("extractText").addEventListener("click", () => {
-    chrome.runtime.sendMessage({ action: "extractText" }, (response) => {
+  document.getElementById("analyzeScreenshot").addEventListener("click", () => {
+    chrome.runtime.sendMessage({ action: "analyzeScreenshot" }, (response) => {
       if (!response) {
-        document.getElementById("extractedText").textContent = "No response from OCR server.";
+        document.getElementById("insights").textContent = "No response from analysis server.";
         return;
       }
 
       if (response.error) {
-        document.getElementById("extractedText").textContent = "Error: " + response.error;
+        document.getElementById("insights").textContent = "Error: " + response.error;
         return;
       }
 
-      document.getElementById("extractedText").textContent = "Extracted Text: " + response.text;
+      document.getElementById("insights").textContent = "Insights: " + response.insights;
     });
   });
 });
