@@ -1,3 +1,7 @@
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error(error));
+
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "captureScreenshot") {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
