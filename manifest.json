@@ -1,18 +1,24 @@
 {
   "manifest_version": 3,
-  "name": "Tab Screenshot Capture",
+  "name": "Myst",
   "version": "1.0",
-  "description": "Captures screenshots and stores them locally for later viewing.",
+  "description": "Demystify your browsing experience",
   "permissions": [
-    "activeTab",
     "tabs",
-    "storage"
+    "storage",
+    "sidePanel",
+    "activeTab"
   ],
-  "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "Screenshot Capture"
+    "default_title": "Open Screenshot Capture"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
   }
 }

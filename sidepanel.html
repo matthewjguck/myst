@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Screenshot Capture</title>
+  <style>
+    body { width: 300px; padding: 10px; font-family: Arial, sans-serif; }
+    button { margin: 5px; padding: 8px; width: 100%; cursor: pointer; }
+    #latestScreenshot { max-width: 100%; margin-top: 10px; }
+    .screenshot-item { margin-bottom: 10px; }
+    .screenshot-item img { max-width: 100%; }
+  </style>
+</head>
+<body>
+  <h2>Screenshot Capture</h2>
+  <button id="capture">Capture Screenshot</button>
+  <button id="viewLatest">View Latest Screenshot</button>
+  <button id="viewAll">View All Screenshots</button>
+  <p id="message"></p>
+  <img id="latestScreenshot" src="" alt="Latest Screenshot">
+  <div id="screenshotList"></div>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
