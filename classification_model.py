@@ -10,7 +10,6 @@ from io import BytesIO
 from PIL import Image
 from mistralai import Mistral
 
-
 # Load environment variables
 load_dotenv()
 
@@ -84,7 +83,7 @@ def get_mistral_embedding(text):
         except (json.JSONDecodeError, IndexError):
             raise ValueError(f"Invalid JSON response from Mistral: {category_scores_text}")
 
-        print(f"Category Scores: {category_scores}")
+        
         return category_scores
     else:
         raise Exception(f"Mistral API Error: {response.json()}")
@@ -131,6 +130,10 @@ def update_running_average(new_scores):
         RUNNING_AVERAGE[category] = new_avg
         RUNNING_COUNT[category] = count + 1
 
+    print(f"Running Average: {RUNNING_AVERAGE}")
+
+
+
 
 @app.route('/analyze_screenshot', methods=['POST'])
 def analyze_screenshot():
@@ -152,8 +155,6 @@ def analyze_screenshot():
                 {"role": "user", "content": [{"type": "image_url", "image_url": {"url": image_url}}]}
             ]
         }
-
-        # print("anvbhjuhgvbnjuhygbnjuhyg")
 
         response = requests.post(OPENAI_API_URL, headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}, json=payload)
 
@@ -178,9 +179,10 @@ def analyze_screenshot():
         else:
             normalized_scores = {cat: round(score / total_score, 2) for cat, score in category_scores.items()}
 
-
         update_running_average(normalized_scores)
         global_running_average = RUNNING_AVERAGE
+
+        send_running_average_to_sidepanel(global_running_average)
 
         return jsonify({
             "insights": insights,
