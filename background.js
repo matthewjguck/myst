@@ -38,28 +38,9 @@ function captureAndClassify() {
         .then(response => response.json())
         .then(data => {
           if (data.error) {
-            console.error("Error from classification API:", data.error);
+        console.error("Error from classification API:", data.error);
           } else {
-            console.log("Classification result:", data);
-
-            // Retrieve the current classification vector
-            chrome.storage.local.get("classification_vector", (result) => {
-              let updatedVector = result.classification_vector || {};
-
-              // Update classification vector dynamically
-              for (const category in data.category_scores) {
-                if (updatedVector[category]) {
-                  updatedVector[category] = (
-                    updatedVector[category] * 0.8 + data.category_scores[category] * 0.2
-                  ); // Weighted rolling update (80% old, 20% new)
-                } else {
-                  updatedVector[category] = data.category_scores[category];
-                }
-              }
-
-              // Save updated vector
-              chrome.storage.local.set({ classification_vector: updatedVector });
-            });
+        console.log("Classification result:", data);
           }
         })
         .catch(error => console.error("Failed to send screenshot:", error));

@@ -50,13 +50,13 @@ def get_mistral_embedding(text):
     prompt = (
         f"The following text is an insight extracted from a screenshot:\n\n"
         f"'{text}'\n\n"
-        f"Rate the similarity of this insight to the following categories on a scale from 0 to 1:\n"
-        f"- Motivational\n"
-        f"- Educational\n"
-        f"- Financial\n"
-        f"- Political\n\n"
+        f"Rate the similarity of this insight to the following categories on a scale from -10 to 10:\n"
+        f"- Motivational (-10 = pessimistic, 10 = optimistic)\n"
+        f"- Educational (-10 = uneducational, 10 = educational)\n"
+        f"- Financial (-10 = capitalist, 10 = socialist)\n"
+        f"- Political (-10 = Conservative, 10 = Liberal)\n\n"
         f"Return your response as a valid JSON object with double-quoted keys and values only."
-        f"Example output: {{\"Motivational\": 0.8, \"Educational\": 0.6, \"Financial\": 0.1, \"Political\": 0.05}}"
+        f"Example output: {{\"Motivational\": -1.8, \"Educational\": 7.6, \"Financial\": -8.12, \"Political\": -0.05}}"
     )
 
     payload = {
