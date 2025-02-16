@@ -8,24 +8,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const politicalStrength = RUNNING_AVERAGE["Political"];
       const politicalPosition = 292 * politicalStrength / 2;
+
+      if (politicalPosition > 146) {
+        politicalPosition = 146;
+      } else if (politicalPosition < -146) {
+        politicalPosition = -146;
+      }
+
       document.getElementById("political").style.left = `${politicalPosition + 146}px`;
+    
 
       const economicStrength = RUNNING_AVERAGE["Financial"];
       const economicPosition = 292 * economicStrength / 2;
+
+      if (economicPosition > 146) {
+        economicPosition = 146;
+      } else if (economicPosition < -146) {
+        economicPosition = -146;
+      }
+
       document.getElementById("economic").style.left = `${economicPosition + 146}px`;
 
-      const motivationalStrength = RUNNING_AVERAGE["motivational"];
+      const motivationalStrength = RUNNING_AVERAGE["Motivational"];
       const motivationalPosition = 292 * motivationalStrength / 2;
+
+      if (motivationalPosition > 146) {
+        motivationalPosition = 146;
+      } else if (motivationalPosition < -146) {
+        motivationalPosition = -146;
+      }
+
       document.getElementById("tonal").style.left = `${motivationalPosition + 146}px`;
 
       const educationalStrength = RUNNING_AVERAGE["Educational"];
       const educationalPosition = 292 * educationalStrength / 2;
+
+      if (educationalPosition > 146) {
+        educationalPosition = 146;
+      } else if (educationalPosition < -146) {
+        educationalPosition = -146;
+      }
+
       document.getElementById("educational").style.left = `${educationalPosition + 146}px`;
 
 
       });
       
-
   }
 
   // Update insights every 5 seconds
@@ -92,13 +120,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Array of blob image URLs. You might generate this list on the server
     // or hardcode it if it's fixed.
     const blobImages = [
-      "blobs/dalle1.png",
-      "blobs/dalle2.png",
-      "blobs/dalle3.png",
-      "blobs/dalle4.png",
-      "blobs/dalle5.png",
-      "blobs/dalle6.png",
-      "blobs/dalle7.png",
+      "blobs/image 72.png",
+      "blobs/image 73.png",
+      "blobs/image 74.png",
+      "blobs/image 75.png",
+      "blobs/image 76.png",
+      "blobs/image 77.png",
+      "blobs/image 78.png",
       // add more blob paths as needed
     ];
   
@@ -116,8 +144,8 @@ document.addEventListener("DOMContentLoaded", () => {
       currentImageIndex = (currentImageIndex + 1) % blobImages.length;
     }
   
-    // Update the blob image every 30 seconds (30,000 ms)
-    setInterval(updateBlobImage, 10000);
+   
+    setInterval(updateBlobImage, 60000);
   
     // Immediately update the image on page load
     updateBlobImage();

@@ -40,6 +40,9 @@ USER_EMBEDDINGS_FILE = "user_embeddings.json"  # Store embeddings locally
 import re
 import ast
 
+
+mistralerror = 0
+
 def get_mistral_embedding(text):
     print("get_mistral_embedding")
     """Fetch category similarity scores using Mistral."""
@@ -50,15 +53,16 @@ def get_mistral_embedding(text):
         f"The following text is an insight extracted from a screenshot:\n\n"
         f"'{text}'\n\n"
         f"Rate the similarity of this insight to the following categories on a scale from -1 to 1:\n"
-        f"- Motivational (-1 = strongly pessimistic/demotivating, 1 = strongly optimistic/inspiring)\n"
-        f"- Educational (-1 = highly uneducational/brainrot or misleading, 1 = highly educational/factual)\n"
+        f"- Motivational (-1 = strongly pessimistic, depressing, scary, 1 = strongly optimistic/inspiring)\n"
+        f"- Educational (-1 = highly uneducational/brainrot/racist or misleading, 1 = highly educational/factual)\n"
         f"- Financial (-1 = highly capitalist/profit-driven, 1 = highly socialist/equity-driven)\n"
-        f"- Political (-1 = strongly conservative/traditionalist, 1 = strongly liberal/progressive)\n\n"
+        f"- Political (-1 = strongly conservative/traditionalist/racist, 1 = strongly liberal/progressive)\n\n"
         f"**Guidelines for scoring:**\n"
         f"- **Values closer to -1 or 1** indicate **strong opinions** or **clear alignment** with one side.\n"
         f"- **Values closer to 0** indicate **weak alignment or neutrality** in the category.\n"
         f"Return your response as a valid JSON object with double-quoted keys and values only."
-        f"Example output: {{\"Motivational\": -0.8, \"Educational\": 0.6, \"Financial\": -0.1, \"Political\": 0.5}}"
+        f"Example output 1: {{\"Motivational\": -0.934, \"Educational\": 0.642, \"Financial\": -0.582, \"Political\": 0.357}}"
+        f"Example output 2: {{\"Motivational\": 0.866, \"Educational\": 0.220, \"Political\": 0.2}}"
     )
 
     payload = {
@@ -67,9 +71,26 @@ def get_mistral_embedding(text):
             {"role": "system", "content": "You are a model that classifies text into predefined categories and outputs valid JSON."},
             {"role": "user", "content": prompt}
         ]
-    }
+    } 
+
+    global mistralerror
+
+    if mistralerror == 1:
+        payload = {
+            "model": "gpt-4o",
+            "messages": [
+                {"role": "system", "content": "You are a model that classifies text into predefined categories and outputs valid JSON."},
+                {"role": "user", "content": prompt}
+            ]
+        }
+        response = requests.post(OPENAI_API_URL, headers=headers, json=payload)
+
+        
 
     response = requests.post(MISTRAL_API_URL, headers=headers, json=payload)
+
+    if response.status_code != 200:
+        mistralerror = 1
 
     if response.status_code == 200:
         result = response.json()
@@ -86,6 +107,7 @@ def get_mistral_embedding(text):
         
         return category_scores
     else:
+        mistralerror = 1
         raise Exception(f"Mistral API Error: {response.json()}")
 
 def generate_blob(category_scores):
@@ -123,12 +145,23 @@ def update_running_average(new_scores):
         if category not in RUNNING_AVERAGE:
             print(f"Unknown category: {category}")
             continue
+
+        if new_value == 0.0:
+            continue
+        
         count = RUNNING_COUNT[category]
         old_avg = RUNNING_AVERAGE[category]
         # Update using incremental averaging formula
         new_avg = old_avg + (new_value - old_avg) / (count + 1)
         RUNNING_AVERAGE[category] = new_avg
         RUNNING_COUNT[category] = count + 1
+
+        if RUNNING_AVERAGE[category] > 1.0:
+            RUNNING_AVERAGE[category] = 1.0
+        elif RUNNING_AVERAGE[category] < -1.0:
+            RUNNING_AVERAGE[category] = -1.0
+
+    
 
     print(f"Running Average: {RUNNING_AVERAGE}")
 
@@ -154,7 +187,7 @@ def analyze_screenshot():
         payload = {
             "model": "gpt-4o",
             "messages": [
-                {"role": "system", "content": "Analyze the screenshot and classify its content as Motivational, Educational, Financial, or Political."},
+                {"role": "system", "content": "Analyze the screenshot and describe its content. Be very descriptive. Analyze it for both text and objects/people. Remain matter-of-fact in your words. Consider and use these words: Conservative, Liberal, Capitalist, Socialist, Brainrot, Educational, Racist, Misleading, Pessimistic, Optimistic, Political, Financial."},
                 {"role": "user", "content": [{"type": "image_url", "image_url": {"url": image_url}}]}
             ]
         }
@@ -162,7 +195,7 @@ def analyze_screenshot():
         response = requests.post(OPENAI_API_URL, headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}, json=payload)
 
         if response.status_code != 200:
-            return jsonify({'error': f"Mistral API Error: {response.json()}"}), 500
+            return jsonify({'error': f"OpenAI API Error: {response.json()}"}), 500
 
         insights = response.json()["choices"][0]["message"]["content"]
 
