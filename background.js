@@ -31,7 +31,7 @@ function captureAndClassify() {
           } else {
             console.log("Classification result:", data);
 
-            /// Retrieve the current classification vector
+            // Retrieve the current classification vector
             chrome.storage.local.get("classification_vector", (result) => {
               let updatedVector = result.classification_vector || {};
 
