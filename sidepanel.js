@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const motivationalStrength = RUNNING_AVERAGE["motivational"];
       const motivationalPosition = 292 * motivationalStrength / 2;
-      document.getElementById("motivational").style.left = `${motivationalPosition + 146}px`;
+      document.getElementById("tonal").style.left = `${motivationalPosition + 146}px`;
 
       const educationalStrength = RUNNING_AVERAGE["Educational"];
       const educationalPosition = 292 * educationalStrength / 2;
