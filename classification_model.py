@@ -132,7 +132,10 @@ def update_running_average(new_scores):
 
     print(f"Running Average: {RUNNING_AVERAGE}")
 
-
+@app.route('/data')
+def send_data():
+    data = RUNNING_AVERAGE
+    return jsonify(data)
 
 
 @app.route('/analyze_screenshot', methods=['POST'])
@@ -181,8 +184,6 @@ def analyze_screenshot():
 
         update_running_average(normalized_scores)
         global_running_average = RUNNING_AVERAGE
-
-        send_running_average_to_sidepanel(global_running_average)
 
         return jsonify({
             "insights": insights,

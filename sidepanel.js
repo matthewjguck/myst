@@ -1,21 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Function to update insights display based on the fetched running average
   function updateInsightsDisplay() {
-    fetch("http://127.0.0.1:5002/running_average")
+    fetch("http://127.0.0.1:5002/data")
       .then(response => response.json())
-      .then(runningAverage => {
-        // Example: update circle position based on the "Political" category
-        const politicalStrength = runningAverage["Political"];
-        // For instance, adjust circle position relative to a 292px bar
-        const circlePosition = 292 * politicalStrength / 2; // adjust based on your layout
-        document.getElementById("political").style.left = `${circlePosition + 146}px`;
-
-        // You can also update other UI elements based on runningAverage here.
-        console.log("Running Average:", runningAverage);
-      })
-      .catch(error => {
-        console.error("Error fetching running average:", error);
+      .then(data => {
+      RUNNING_AVERAGE = data;
+      const politicalStrength = RUNNING_AVERAGE["Political"];
+      const circlePosition = 292 * politicalStrength / 2; // Assuming the bar width is 292px
+      document.getElementById("political").style.left = `${circlePosition + 146}px`;
       });
+      
+
   }
 
   // Update insights every 5 seconds
