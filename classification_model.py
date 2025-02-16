@@ -170,7 +170,10 @@ def analyze_screenshot():
 
         # Normalize scores
         total_score = sum(category_scores.values())
-        normalized_scores = {cat: round(score / total_score, 2) for cat, score in category_scores.items()}
+        if total_score == 0:
+            normalized_scores = {cat: 0 for cat in category_scores}
+        else:
+            normalized_scores = {cat: round(score / total_score, 2) for cat, score in category_scores.items()}
 
 
         update_running_average(normalized_scores)
