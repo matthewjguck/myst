@@ -34,7 +34,7 @@ def analyze_screenshot():
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "Analyze the screenshot and classify its content as Motivational, Educational, Informational, Financial, or Political."},
+                {"role": "system", "content": "Analyze the screenshot and classify its content as Motivational, Educational, Financial, or Political."},
                 {"role": "user", "content": [{"type": "image_url", "image_url": {"url": image_url}}]}
             ]
         )
