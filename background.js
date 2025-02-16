@@ -10,7 +10,7 @@ const COOLDOWN_TIME = 5000; // Cooldown time in milliseconds (5 seconds)
 setInterval(() => {
   console.log("Interval reached, capturing screenshot...");
   captureAndClassify();
-}, 15000); // 10 seconds interval
+}, 40000); // 40 seconds interval
 
 
 // Function to capture a screenshot and classify it
