@@ -1,75 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("capture").addEventListener("click", () => {
-    chrome.runtime.sendMessage({ action: "captureScreenshot" }, (response) => {
-      if (!response) {
-        document.getElementById("message").textContent = "No response from background script.";
-        return;
+  // Function to update insights display
+  function updateInsightsDisplay() {
+    chrome.storage.local.get(["classification_vector", "visualization_url"], (result) => {
+      const vector = result.classification_vector || {};
+      const visualizationUrl = result.visualization_url || "";
+
+      // Display category scores
+      let insightsText = "Category Strengths:\n";
+      for (const category in vector) {
+        insightsText += `${category}: ${(vector[category] * 100).toFixed(1)}%\n`;
       }
+      document.getElementById("insights").textContent = insightsText;
 
-      if (response.error) {
-        document.getElementById("message").textContent = response.error;
-        return;
-      }
-
-      document.getElementById("message").textContent = response.message;
-      document.getElementById("latestScreenshot").src = response.dataUrl;
-    });
-  });
-
-  document.getElementById("viewAll").addEventListener("click", () => {
-    chrome.storage.local.get("screenshots", (result) => {
-      const screenshots = result.screenshots || [];
-      const listContainer = document.getElementById("screenshotList");
-      listContainer.innerHTML = "";
-
-      if (screenshots.length) {
-        screenshots.forEach((shot, index) => {
-          const container = document.createElement("div");
-          container.className = "screenshot-item";
-
-          const img = document.createElement("img");
-          img.src = shot.dataUrl;
-          img.style.width = "100%";
-          img.alt = `Screenshot ${index + 1}`;
-
-          const timestamp = document.createElement("div");
-          timestamp.className = "timestamp";
-          timestamp.textContent = `Captured at: ${shot.timestamp}`;
-
-          container.appendChild(img);
-          container.appendChild(timestamp);
-          listContainer.appendChild(container);
-        });
-
-        document.getElementById("message").textContent = `Displaying all ${screenshots.length} screenshot(s).`;
-        document.getElementById("latestScreenshot").src = "";
-      } else {
-        document.getElementById("message").textContent = "No screenshots found.";
+      // Update Luma Visualization if available
+      if (visualizationUrl) {
+        document.getElementById("lumaVisualization").innerHTML = `<iframe src="${visualizationUrl}" width="100%" height="400px"></iframe>`;
       }
     });
-  });
+  }
 
-  document.getElementById("analyzeScreenshot").addEventListener("click", () => {
-    chrome.runtime.sendMessage({ action: "analyzeScreenshot" }, (response) => {
-      if (!response) {
-        document.getElementById("insights").textContent = "No response from analysis server.";
-        return;
-      }
+  // Update insights every 5 seconds
+  setInterval(updateInsightsDisplay, 5000);
 
-      if (response.error) {
-        document.getElementById("insights").textContent = "Error: " + response.error;
-        return;
-      }
-
-      document.getElementById("insights").textContent = "Insights: " + response.insights;
-
-      if (response.visualization_url) {
-        const iframe = document.createElement("iframe");
-        iframe.src = response.visualization_url;
-        iframe.width = "100%";
-        iframe.height = "400px";
-        document.getElementById("lumaVisualization").appendChild(iframe);
-      }
-    });
-  });
+  // Immediately update on page load
+  updateInsightsDisplay();
 });

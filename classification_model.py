@@ -6,6 +6,10 @@ import numpy as np
 import requests
 from dotenv import load_dotenv
 from luma_api import send_to_luma
+from io import BytesIO
+from PIL import Image
+from mistralai import Mistral
+
 
 # Load environment variables
 load_dotenv()
@@ -14,6 +18,9 @@ app = Flask(__name__)
 
 # Load Mistral API key
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 
 if not MISTRAL_API_KEY:
     raise ValueError("Missing Mistral API Key! Set it in a .env file.")
@@ -35,6 +42,7 @@ import re
 import ast
 
 def get_mistral_embedding(text):
+    print("get_mistral_embedding")
     """Fetch category similarity scores using Mistral."""
     headers = {"Authorization": f"Bearer {MISTRAL_API_KEY}", "Content-Type": "application/json"}
 
@@ -52,7 +60,7 @@ def get_mistral_embedding(text):
     )
 
     payload = {
-        "model": "mistral-small",
+        "model": "mistral-large-latest",
         "messages": [
             {"role": "system", "content": "You are a model that classifies text into predefined categories and outputs valid JSON."},
             {"role": "user", "content": prompt}
@@ -65,15 +73,15 @@ def get_mistral_embedding(text):
         result = response.json()
         category_scores_text = result["choices"][0]["message"]["content"].strip()
 
-        # Convert improperly formatted JSON (with single quotes) to valid JSON
+        # Ensure the response is a valid JSON string
         try:
-            category_scores = json.loads(category_scores_text)  # First attempt with JSON
-        except json.JSONDecodeError:
-            try:
-                category_scores = ast.literal_eval(category_scores_text)  # Convert Python-like dict to JSON
-            except (SyntaxError, ValueError):
-                raise ValueError(f"Invalid JSON response from Mistral: {category_scores_text}")
+            # Clean up the response to ensure it is valid JSON
+            category_scores_text = category_scores_text.split('```json')[1].split('```')[0].strip()
+            category_scores = json.loads(category_scores_text)
+        except (json.JSONDecodeError, IndexError):
+            raise ValueError(f"Invalid JSON response from Mistral: {category_scores_text}")
 
+        print(f"Category Scores: {category_scores}")
         return category_scores
     else:
         raise Exception(f"Mistral API Error: {response.json()}")
@@ -98,31 +106,10 @@ def cosine_similarity(vec1, vec2):
     """Compute the cosine similarity between two vectors."""
     return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
-'''def save_embedding(user_id, insights, embedding_vector):
-    """Save user embeddings to a file."""
-    try:
-        if os.path.exists(USER_EMBEDDINGS_FILE):
-            with open(USER_EMBEDDINGS_FILE, "r") as file:
-                user_embeddings = json.load(file)
-        else:
-            user_embeddings = {}
-
-        if user_id not in user_embeddings:
-            user_embeddings[user_id] = {"history": []}
-
-        user_embeddings[user_id]["history"].append({
-            "insights": insights,
-            "embedding": embedding_vector
-        })
-
-        with open(USER_EMBEDDINGS_FILE, "w") as file:
-            json.dump(user_embeddings, file, indent=2)
-
-    except Exception as e:
-        print("Error saving embedding:", e) '''
 
 @app.route('/analyze_screenshot', methods=['POST'])
 def analyze_screenshot():
+    print("analyze_screenshot")
     try:
         data = request.json
         if 'image' not in data:
@@ -134,14 +121,16 @@ def analyze_screenshot():
 
         # Get text insights from Mistral
         payload = {
-            "model": "mistral-small",
+            "model": "gpt-4o",
             "messages": [
                 {"role": "system", "content": "Analyze the screenshot and classify its content as Motivational, Educational, Financial, or Political."},
                 {"role": "user", "content": [{"type": "image_url", "image_url": {"url": image_url}}]}
             ]
         }
 
-        response = requests.post(MISTRAL_API_URL, headers={"Authorization": f"Bearer {MISTRAL_API_KEY}", "Content-Type": "application/json"}, json=payload)
+        print("anvbhjuhgvbnjuhygbnjuhyg")
+
+        response = requests.post(OPENAI_API_URL, headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}, json=payload)
 
         if response.status_code != 200:
             return jsonify({'error': f"Mistral API Error: {response.json()}"}), 500

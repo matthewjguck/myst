@@ -3,8 +3,19 @@ chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
 
 console.log("Background script loaded. Automatic screenshot classification enabled.");
 
+// Automatically capture a screenshot when a tab updates
+const cooldowns = new Map(); // Store cooldown timers per tab
+const COOLDOWN_TIME = 5000; // Cooldown time in milliseconds (5 seconds)
+
+setInterval(() => {
+  console.log("Interval reached, capturing screenshot...");
+  captureAndClassify();
+}, 10000); // 10 seconds interval
+
+
 // Function to capture a screenshot and classify it
 function captureAndClassify() {
+  console.log("Capturing screenshot and classifying...");
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs.length === 0) {
       console.error("No active tab found.");
@@ -22,7 +33,7 @@ function captureAndClassify() {
       fetch("http://127.0.0.1:5002/analyze_screenshot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: dataUrl, user_id: "default_user" }),
+        body: JSON.stringify({ image: dataUrl }),
       })
         .then(response => response.json())
         .then(data => {
@@ -31,7 +42,7 @@ function captureAndClassify() {
           } else {
             console.log("Classification result:", data);
 
-            /// Retrieve the current classification vector
+            // Retrieve the current classification vector
             chrome.storage.local.get("classification_vector", (result) => {
               let updatedVector = result.classification_vector || {};
 
