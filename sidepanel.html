@@ -38,6 +38,22 @@
     }
     }
 
+    .bobbing {
+            display: block;
+            width: 200px; /* Adjust as needed */
+            height: auto;
+            animation: bobbing 2s infinite ease-in-out;
+        }
+
+        @keyframes bobbing {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px); /* Adjust height of bobbing */
+            }
+        }
+
     /* Gradient Overlay */
     .gradient-overlay {
       position: absolute;
@@ -60,7 +76,7 @@
         <img style="width: 120px; height: auto; margin-top: 10px;" src="/Myst.png"/>
     </div>
     <div style="display: flex; direction: column; justify-content: center; width: 100%;">
-        <img style="width: 180px; height: auto;" src="/Blob.png"/>
+        <img style="width: 180px; height: auto;" src="/Blob.png" class="bobbing"/>
     </div>
 
      <div style="text-align: center"><span style="color: white; font-size: 20px; font-family: SF Pro Display; font-weight: 500; text-transform: capitalize; line-height: 24.16px; word-wrap: break-word">
