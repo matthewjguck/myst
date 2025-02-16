@@ -194,5 +194,10 @@ def analyze_screenshot():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/running_average', methods=['GET'])
+def get_running_average():
+    return jsonify(RUNNING_AVERAGE)
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5002, debug=True)
