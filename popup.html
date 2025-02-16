@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Screenshot & Sentiment Analysis</title>
+    <title>Screenshot Capture</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -10,7 +10,7 @@
         width: 320px;
       }
       button {
-        margin-bottom: 10px;
+        margin: 5px 0;
         width: 100%;
         padding: 8px;
       }
@@ -39,20 +39,14 @@
         margin: 3px;
       }
     </style>
-    <!-- Include Tesseract.js for OCR -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
-    <!-- Include Sentiment library for sentiment analysis -->
-    <script src="https://unpkg.com/sentiment@latest/dist/sentiment.min.js"></script>
   </head>
   <body>
     <button id="capture">Capture Screenshot</button>
     <button id="viewLatest">View Latest Screenshot</button>
     <button id="viewAll">View All Screenshots</button>
-    <button id="analyze">Analyze Sentiment</button>
     <div id="message"></div>
     <img id="latestScreenshot" src="" alt="Latest screenshot will appear here">
     <div id="screenshotList"></div>
-    
     <script src="popup.js"></script>
   </body>
 </html>

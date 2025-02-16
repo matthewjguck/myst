@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "In-Browser Screenshot & Sentiment Analysis",
+  "name": "Tab Screenshot Capture",
   "version": "1.0",
-  "description": "Captures screenshots, extracts text via OCR, and runs sentiment analysis—all in Chrome.",
+  "description": "Captures screenshots and stores them locally for later viewing.",
   "permissions": [
     "activeTab",
     "tabs",
@@ -13,6 +13,6 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Screenshot & Sentiment"
+    "default_title": "Screenshot Capture"
   }
 }
