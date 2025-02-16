@@ -48,4 +48,20 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  document.getElementById("extractText").addEventListener("click", () => {
+    chrome.runtime.sendMessage({ action: "extractText" }, (response) => {
+      if (!response) {
+        document.getElementById("extractedText").textContent = "No response from OCR server.";
+        return;
+      }
+
+      if (response.error) {
+        document.getElementById("extractedText").textContent = "Error: " + response.error;
+        return;
+      }
+
+      document.getElementById("extractedText").textContent = "Extracted Text: " + response.text;
+    });
+  });
 });

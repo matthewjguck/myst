@@ -34,6 +34,39 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.action === "extractText") {
+    chrome.storage.local.get("screenshots", (result) => {
+      if (!result.screenshots || result.screenshots.length === 0) {
+        sendResponse({ error: "No screenshots found." });
+        return;
+      }
+
+      const latestScreenshot = result.screenshots[result.screenshots.length - 1].dataUrl;
+
+      fetch("http://127.0.0.1:5001/extract_text", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: latestScreenshot }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            sendResponse({ error: data.error });
+          } else {
+            sendResponse({ text: data.text });
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching OCR data:", error);
+          sendResponse({ error: "Failed to extract text." });
+        });
+
+      return true; // Keep sendResponse valid for async fetch
+    });
+
+    return true;
+  }
+
   sendResponse({ error: "Invalid action." });
   return true;
 });
