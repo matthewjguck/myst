@@ -3,12 +3,15 @@ import os
 import json
 import numpy as np
 import requests
+from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import re
 import ast
 
 # Load environment variables
 load_dotenv()
+
+app = Flask(__name__)
 
 # Load Mistral API key
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -28,15 +31,13 @@ CATEGORY_TEXTS = {
 
 # File to store the running average and sample count
 RUNNING_AVERAGE_FILE = "running_average.json"
-
-# Categories list (used for initializing running average)
 CATEGORIES = list(CATEGORY_TEXTS.keys())
 
 def get_mistral_embedding(text):
     """Fetch category similarity scores using Mistral."""
     headers = {"Authorization": f"Bearer {MISTRAL_API_KEY}", "Content-Type": "application/json"}
     
-    # Create a structured prompt
+    # Create a structured prompt using the given text.
     prompt = (
         f"The following text is an insight extracted from a screenshot:\n\n"
         f"'{text}'\n\n"
@@ -45,8 +46,8 @@ def get_mistral_embedding(text):
         f"- Educational\n"
         f"- Financial\n"
         f"- Political\n\n"
-        f"Return your response as a valid JSON object with double-quoted keys and values only."
-        f" Example output: {{\"Motivational\": 0.8, \"Educational\": 0.6, \"Financial\": 0.1, \"Political\": 0.05}}"
+        f"Return your response as a valid JSON object with double-quoted keys and values only. "
+        f"Example output: {{\"Motivational\": 0.8, \"Educational\": 0.6, \"Financial\": 0.1, \"Political\": 0.05}}"
     )
     
     payload = {
@@ -63,14 +64,13 @@ def get_mistral_embedding(text):
         result = response.json()
         category_scores_text = result["choices"][0]["message"]["content"].strip()
         
-        # Attempt to parse the response as JSON
         try:
             category_scores = json.loads(category_scores_text)
         except json.JSONDecodeError:
             try:
                 category_scores = ast.literal_eval(category_scores_text)
             except (SyntaxError, ValueError):
-                # Fallback: use regex to extract key-value pairs
+                # Fallback: extract key-value pairs via regex.
                 pattern = r'"([^"]+)"\s*:\s*([\d.]+)'
                 matches = re.findall(pattern, category_scores_text)
                 category_scores = {key: float(val) for key, val in matches}
@@ -90,7 +90,7 @@ def load_running_average():
 
 def update_running_average(new_scores, running_avg, count):
     """
-    Update the running average given new_scores.
+    Update the running average with new_scores.
     new_avg = (old_total * count + new_score) / (count + 1)
     """
     new_count = count + 1
@@ -104,30 +104,34 @@ def save_running_average(running_avg, count):
     with open(RUNNING_AVERAGE_FILE, "w") as f:
         json.dump({"running_average": running_avg, "count": count}, f, indent=2)
 
-def main():
-    # Example insight text to classify
-    sample_text = "This is a sample insight regarding political policies and elections."
-    
-    # Get category scores from Mistral
-    scores = get_mistral_embedding(sample_text)
-    
-    # Normalize scores: ensure they sum to 1
+@app.route('/simplify_classification', methods=['POST'])
+def simplify_classification():
+    data = request.json
+    if 'image' not in data:
+        return jsonify({'error': 'No image provided'}), 400
+
+    # Here, image data is provided in base64 format.
+    # (1) In a real implementation, you’d generate a text description from the image (e.g., via OCR or image captioning).
+    # For now, we simulate by using a fixed description.
+    description_text = "This screenshot shows various political ads and news headlines."
+
+    # (2) Get classification scores using the description.
+    scores = get_mistral_embedding(description_text)
     total_score = sum(scores.values())
-    normalized_scores = {cat: round(score / total_score, 2) for cat, score in scores.items()}
-    
-    print("Normalized scores:", normalized_scores)
-    
-    # Load current running average and count
-    running_avg, count = load_running_average()
-    print("Previous running average (over", count, "samples):", running_avg)
-    
-    # Update running average with the new normalized scores
-    running_avg, count = update_running_average(normalized_scores, running_avg, count)
-    
-    # Save the updated running average back to the file
-    save_running_average(running_avg, count)
-    
-    print("Updated running average (over", count, "samples):", running_avg)
+    normalized_scores = {cat: round(scores.get(cat, 0.0) / total_score, 2) for cat in scores}
+
+    # (3) Update the running average.
+    current_avg, count = load_running_average()
+    updated_avg, new_count = update_running_average(normalized_scores, current_avg, count)
+    save_running_average(updated_avg, new_count)
+
+    # (4) Return the results.
+    return jsonify({
+        "description": description_text,
+        "normalized_scores": normalized_scores,
+        "updated_running_average": updated_avg,
+        "sample_count": new_count
+    })
 
 if __name__ == '__main__':
-    main()
+    app.run(host='0.0.0.0', port=5002, debug=True)
