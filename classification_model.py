@@ -5,6 +5,7 @@ import base64
 import numpy as np
 import requests
 from dotenv import load_dotenv
+from luma_api import send_to_luma
 
 # Load environment variables
 load_dotenv()
@@ -31,7 +32,7 @@ CATEGORY_TEXTS = {
 USER_EMBEDDINGS_FILE = "user_embeddings.json"  # Store embeddings locally
 
 import re
-import ast 
+import ast
 
 def get_mistral_embedding(text):
     """Fetch category similarity scores using Mistral."""
@@ -77,6 +78,15 @@ def get_mistral_embedding(text):
     else:
         raise Exception(f"Mistral API Error: {response.json()}")
 
+def generate_blob(category_scores):
+    """Convert category scores into a structured binary format (Blob)."""
+    # Convert dictionary values to a NumPy array
+    category_values = np.array(list(category_scores.values()), dtype=np.float32)
+
+    # Encode as base64 for easy storage and transmission
+    blob_data = base64.b64encode(category_values.tobytes()).decode('utf-8')
+
+    return blob_data
 
 # Generate embeddings for predefined categories
 CATEGORY_EMBEDDINGS = {
@@ -88,7 +98,7 @@ def cosine_similarity(vec1, vec2):
     """Compute the cosine similarity between two vectors."""
     return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
-def save_embedding(user_id, insights, embedding_vector):
+'''def save_embedding(user_id, insights, embedding_vector):
     """Save user embeddings to a file."""
     try:
         if os.path.exists(USER_EMBEDDINGS_FILE):
@@ -109,13 +119,12 @@ def save_embedding(user_id, insights, embedding_vector):
             json.dump(user_embeddings, file, indent=2)
 
     except Exception as e:
-        print("Error saving embedding:", e)
+        print("Error saving embedding:", e) '''
 
 @app.route('/analyze_screenshot', methods=['POST'])
 def analyze_screenshot():
     try:
         data = request.json
-        user_id = data.get("user_id", "default_user")
         if 'image' not in data:
             return jsonify({'error': 'No image data provided'}), 400
 
@@ -142,11 +151,22 @@ def analyze_screenshot():
         # Generate embedding for insights
         category_scores = get_mistral_embedding(insights)
 
+        # Generate blob from category scores
+        blob = generate_blob(category_scores)
+
+        # Send to Luma AI for visualization
+        visualization = send_to_luma(blob)
+
         # Normalize scores
         total_score = sum(category_scores.values())
         normalized_scores = {cat: round(score / total_score, 2) for cat, score in category_scores.items()}
 
-        return jsonify({"insights": insights, "category_scores": normalized_scores})
+        return jsonify({
+            "insights": insights,
+            "category_scores": normalized_scores,
+            "blob": blob,
+            "visualization_url": visualization
+        })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

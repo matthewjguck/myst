@@ -62,6 +62,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       document.getElementById("insights").textContent = "Insights: " + response.insights;
+
+      if (response.visualization_url) {
+        const iframe = document.createElement("iframe");
+        iframe.src = response.visualization_url;
+        iframe.width = "100%";
+        iframe.height = "400px";
+        document.getElementById("lumaVisualization").appendChild(iframe);
+      }
     });
   });
 });
