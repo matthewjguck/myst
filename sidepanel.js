@@ -5,9 +5,24 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(response => response.json())
       .then(data => {
       RUNNING_AVERAGE = data;
+
       const politicalStrength = RUNNING_AVERAGE["Political"];
-      const circlePosition = 292 * politicalStrength / 2; // Assuming the bar width is 292px
-      document.getElementById("political").style.left = `${circlePosition + 146}px`;
+      const politicalPosition = 292 * politicalStrength / 2;
+      document.getElementById("political").style.left = `${politicalPosition + 146}px`;
+
+      const economicStrength = RUNNING_AVERAGE["Financial"];
+      const economicPosition = 292 * economicStrength / 2;
+      document.getElementById("economic").style.left = `${economicPosition + 146}px`;
+
+      const motivationalStrength = RUNNING_AVERAGE["motivational"];
+      const motivationalPosition = 292 * motivationalStrength / 2;
+      document.getElementById("motivational").style.left = `${motivationalPosition + 146}px`;
+
+      const educationalStrength = RUNNING_AVERAGE["Educational"];
+      const educationalPosition = 292 * educationalStrength / 2;
+      document.getElementById("educational").style.left = `${educationalPosition + 146}px`;
+
+
       });
       
 
